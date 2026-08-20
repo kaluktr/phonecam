@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.PhoneCam" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">#9146FF</item>
+        <item name="colorPrimaryVariant">#7c3aed</item>
+        <item name="colorOnPrimary">#ffffff</item>
+        <item name="android:statusBarColor">#0a0a0d</item>
+        <item name="android:navigationBarColor">#0a0a0d</item>
+        <item name="android:windowBackground">#0a0a0d</item>
+    </style>
+</resources>

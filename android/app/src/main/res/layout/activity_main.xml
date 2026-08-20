@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#0a0a0d"
+    android:padding="0dp">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="PhoneCam"
+            android:textColor="#9146FF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="● Detenido"
+            android:textColor="#5c5c6e"
+            android:textSize="13sp"
+            android:layout_marginEnd="8dp" />
+    </LinearLayout>
+
+    <!-- Camera Preview -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:paddingHorizontal="12dp">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#121217" />
+    </FrameLayout>
+
+    <!-- URL display -->
+    <TextView
+        android:id="@+id/tvUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textColor="#9d9dab"
+        android:textSize="12sp"
+        android:paddingVertical="8dp"
+        android:fontFamily="monospace" />
+
+    <!-- Controls -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingHorizontal="16dp"
+        android:paddingBottom="24dp"
+        android:gravity="center">
+
+        <!-- Resolution Spinner -->
+        <Spinner
+            android:id="@+id/spinnerRes"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:layout_marginEnd="12dp"
+            android:background="#1a1a22"
+            android:popupBackground="#1a1a22" />
+
+        <!-- Switch Camera -->
+        <Button
+            android:id="@+id/btnSwitch"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="Cambiar"
+            android:textColor="#e8e8ed"
+            android:backgroundTint="#1a1a22"
+            android:layout_marginEnd="8dp"
+            android:textAllCaps="false" />
+
+        <!-- Start/Stop -->
+        <Button
+            android:id="@+id/btnStart"
+            android:layout_width="wrap_content"
+            android:layout_height="44dp"
+            android:text="Iniciar"
+            android:textColor="#ffffff"
+            android:backgroundTint="#9146FF"
+            android:textAllCaps="false" />
+    </LinearLayout>
+</LinearLayout>
