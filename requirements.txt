@@ -9,3 +9,6 @@ pyvirtualcam>=0.10
 
 # Licencias PRO (verificación offline con Ed25519).
 cryptography>=41
+
+# QR code para descargar la app Android.
+qrcode[pil]>=7.0

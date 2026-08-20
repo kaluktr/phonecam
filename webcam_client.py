@@ -57,6 +57,12 @@ import config
 import licensing
 import updater
 
+try:
+    import qrcode as _qrcode_mod
+    _HAS_QR = True
+except Exception:
+    _HAS_QR = False
+
 # ------------------------- Tema (inspirado en MULTICHAT) ------------------- #
 APP_NAME = "PhoneCam"
 BG = "#0a0a0d"              # bg-primary
@@ -320,6 +326,14 @@ class PhoneCamApp:
                                  highlightthickness=1, highlightbackground=BORDER,
                                  command=self._open_license_dialog)
         self.pro_btn.pack(side="right", padx=(0, 12))
+
+        # Botón "Descargar APK" (abre diálogo con QR + link manual).
+        self.dl_btn = tk.Button(header, text="APK", font=(self.FONT, 8, "bold"),
+                                bg=BG_TERTIARY, fg=ACCENT, relief="flat",
+                                bd=0, padx=10, pady=2, cursor="hand2",
+                                highlightthickness=1, highlightbackground=ACCENT,
+                                command=self._open_download_dialog)
+        self.dl_btn.pack(side="right", padx=(0, 6))
 
         # --- Panel compacto de controles ---
         panel = RoundedPanel(main, fill_x=True, pady=12)
@@ -1026,6 +1040,124 @@ class PhoneCamApp:
             "¿Abrir la página de descarga en tu navegador?")
         if answer and url:
             webbrowser.open(url)
+
+    # ------------------------------------------------------------------ #
+    #  Descargar APK (QR + link manual)                                   #
+    # ------------------------------------------------------------------ #
+    def _apk_download_url(self):
+        """URL de la release más reciente de GitHub."""
+        return f"https://github.com/{config.GITHUB_REPO}/releases/latest"
+
+    def _generate_qr(self, data, size=220):
+        """Genera un QR como PhotoImage de Tkinter (tema morado sobre oscuro)."""
+        if not _HAS_QR:
+            return None
+        try:
+            qr = _qrcode_mod.QRCode(
+                version=None, error_correction=_qrcode_mod.constants.ERROR_CORRECT_M,
+                box_size=6, border=2)
+            qr.add_data(data)
+            qr.make(fit=True)
+            img = qr.make_image(fill_color="#9146FF", back_color="#0a0a0d")
+            img = img.resize((size, size), Image.NEAREST)
+            photo = ImageTk.PhotoImage(img)
+            self.icon_refs.append(photo)
+            return photo
+        except Exception:
+            return None
+
+    def _open_download_dialog(self):
+        dlg = tk.Toplevel(self.root)
+        dlg.title("Descargar PhoneCam Android")
+        dlg.configure(bg=BG_SECONDARY)
+        dlg.geometry("420x520")
+        dlg.resizable(False, False)
+        dlg.transient(self.root)
+        dlg.grab_set()
+
+        tk.Label(dlg, text="Descargar App Android",
+                 font=(self.FONT, 14, "bold"),
+                 bg=BG_SECONDARY, fg=TEXT).pack(pady=(18, 4))
+        tk.Label(dlg, text="Escaneá el código QR con la cámara de tu celular "
+                 "para descargar la APK directamente.",
+                 bg=BG_SECONDARY, fg=TEXT_SECONDARY,
+                 font=(self.FONT, 9), wraplength=340,
+                 justify="center").pack(pady=(0, 14))
+
+        # --- QR ---
+        url = self._apk_download_url()
+        qr_img = self._generate_qr(url, size=220)
+        if qr_img:
+            qr_frame = tk.Frame(dlg, bg="#ffffff", padx=14, pady=14,
+                                highlightthickness=0)
+            qr_frame.pack()
+            tk.Label(qr_frame, image=qr_img, bg="#ffffff").pack()
+        else:
+            tk.Label(dlg, text="(Instala 'qrcode' para generar el QR: "
+                     "pip install qrcode[pil])",
+                     bg=BG_SECONDARY, fg=TEXT_MUTED,
+                     font=(self.FONT, 9)).pack(pady=8)
+
+        # --- Link manual ---
+        tk.Label(dlg, text="O copiá este enlace:",
+                 bg=BG_SECONDARY, fg=TEXT_MUTED,
+                 font=(self.FONT, 8)).pack(pady=(14, 4))
+
+        link_var = tk.StringVar(value=url)
+        link_entry = tk.Entry(dlg, textvariable=link_var, width=48,
+                              font=(self.FONT, 9), relief="flat",
+                              highlightthickness=1,
+                              highlightbackground=BORDER,
+                              highlightcolor=ACCENT,
+                              bg=BG_INPUT, fg=ACCENT,
+                              insertbackground=TEXT)
+        link_entry.pack(padx=20, pady=(0, 8))
+        link_entry.select_range(0, "end")
+
+        def _copy():
+            self.root.clipboard_clear()
+            self.root.clipboard_append(url)
+            copy_btn.configure(text="Copiado ✓")
+            self.root.after(1500, lambda: copy_btn.configure(text="Copiar link"))
+
+        copy_btn = tk.Button(dlg, text="Copiar link", font=(self.FONT, 9, "bold"),
+                             bg=BG_TERTIARY, fg=TEXT_SECONDARY, relief="flat",
+                             bd=0, padx=14, pady=5, cursor="hand2",
+                             highlightthickness=1, highlightbackground=BORDER,
+                             command=_copy)
+        copy_btn.pack(pady=(0, 4))
+
+        def _open_browser():
+            webbrowser.open(url)
+
+        tk.Button(dlg, text="Abrir en navegador", font=(self.FONT, 9),
+                  bg=ACCENT, fg="#ffffff", relief="flat", bd=0,
+                  padx=16, pady=6, cursor="hand2",
+                  activebackground=ACCENT_HOVER,
+                  command=_open_browser).pack(pady=(4, 4))
+
+        # --- Pasos ---
+        steps_frame = tk.Frame(dlg, bg=BG_SECONDARY)
+        steps_frame.pack(pady=(10, 0), padx=30, fill="x")
+        steps = [
+            ("1", "Abrí la cámara de tu celular"),
+            ("2", "Escaneá el código QR"),
+            ("3", "Pulsa \"Descargar\" en el navegador"),
+        ]
+        for num, text in steps:
+            row = tk.Frame(steps_frame, bg=BG_SECONDARY)
+            row.pack(fill="x", pady=2)
+            circle = tk.Label(row, text=num, font=(self.FONT, 9, "bold"),
+                              bg=BG_SECONDARY, fg=ACCENT, width=2)
+            circle.pack(side="left", padx=(0, 8))
+            tk.Label(row, text=text, font=(self.FONT, 9),
+                     bg=BG_SECONDARY, fg=TEXT_SECONDARY).pack(side="left")
+
+        # Cerrar
+        tk.Button(dlg, text="Cerrar", font=(self.FONT, 10),
+                  bg=BG_TERTIARY, fg=TEXT_SECONDARY, relief="flat", bd=0,
+                  padx=16, pady=6, cursor="hand2",
+                  command=dlg.destroy).pack(pady=(14, 14))
 
     def _on_close(self):
         self.running.clear()
